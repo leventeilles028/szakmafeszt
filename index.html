@@ -1,40 +1,487 @@
-// --- Cégek listája ---
-const cegek = [
-  "GÉPÉSZETI", "ESZE TAMÁS", "DÉRI", "BUDAI", "BAROS",
-  "MUNKA.HU", "HELYSZÍN", "TŰZOLTÓSÁG", "ZEISS", "HOYA",
-  "MOM", "SZATMÁR OPTIKA", "RENDŐRSÉG", "PARMEN", "NOBILIS",
-  "PÖTTYÖS", "MSG", "MCDONALDS"
-];
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1. Mátészalkai SzakmaFeszt</title>
 
-const cegLista = document.getElementById("cegLista");
-const cegGaleria = document.getElementById("cegGaleria");
-const lightbox2 = document.getElementById("lightbox");
-const lightImg2 = lightbox2.querySelector("img");
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-// Kártyák generálása
-cegek.forEach(nev => {
-  const div = document.createElement("div");
-  div.className = "ceg-kartya";
-  div.textContent = nev;
-  div.addEventListener("click", () => megjelenitCeg(nev));
-  cegLista.appendChild(div);
-});
+  <style>
+    :root {
+      --primary: #4b6cff;
+      --accent: #1dd1a1;
+      --bg: #f7f8fa;
+      --text: #222;
+      --card-bg: #fff;
+    }
+    [data-theme="dark"] {
+      --primary: #7289da;
+      --accent: #10ac84;
+      --bg: #16171d;
+      --text: #e0e0e0;
+      --card-bg: #23242b;
+    }
 
-function megjelenitCeg(nev) {
-  cegGaleria.innerHTML = "";
-  cegGaleria.style.display = "grid";
-  cegGaleria.scrollIntoView({ behavior: "smooth" });
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
 
-  // Feltételezzük, hogy a képek neve 1-től 10-ig van számozva
-  for (let i = 1; i <= 10; i++) {
-    const kep = document.createElement("img");
-    kep.src = `kepek/${nev}/${i}.jpg`;
-    kep.alt = `${nev} kép ${i}`;
-    kep.onerror = () => kep.remove(); // ha nincs kép, ne jelenjen meg hibás elem
-    kep.addEventListener("click", () => {
-      lightImg2.src = kep.src;
-      lightbox2.style.display = "flex";
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      scroll-behavior: smooth;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: var(--primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      padding: 1rem 2rem;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    nav a {
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      transition: 0.3s;
+    }
+    nav a:hover { color: var(--accent); }
+    #themeToggle {
+      position: absolute;
+      right: 20px;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 25px;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      backdrop-filter: blur(6px);
+    }
+    #themeToggle:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    header {
+      height: 85vh;
+      background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.5)), url('stand1.jpg') center/cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    header h1 {
+      font-size: 3rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+    header p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      line-height: 1.5;
+    }
+
+    section {
+      margin: 4rem auto;
+      max-width: 1100px;
+      padding: 1rem;
+    }
+    section h2 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      position: relative;
+    }
+    section h2::after {
+      content: "";
+      display: block;
+      width: 80px;
+      height: 4px;
+      background: var(--accent);
+      margin: 0.5rem auto 0;
+      border-radius: 2px;
+    }
+
+    /* Slideshow */
+    #slideshow {
+      position: relative;
+      max-width: 850px;
+      margin: 2rem auto;
+      overflow: hidden;
+      border-radius: 1.2rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    .slide {
+      display: none;
+      height: 360px;
+      background-size: cover;
+      background-position: center;
+    }
+    .slide.active {
+      display: block;
+      animation: fade 1s ease-in-out;
+    }
+    @keyframes fade {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 0.7rem 1rem;
+      color: white;
+      font-weight: bold;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.4);
+      user-select: none;
+    }
+    .prev:hover, .next:hover {
+      background: var(--accent);
+    }
+    .prev { left: 15px; }
+    .next { right: 15px; }
+    .dots {
+      text-align: center;
+      margin-top: 0.8rem;
+    }
+    .dot {
+      cursor: pointer;
+      height: 12px;
+      width: 12px;
+      margin: 0 5px;
+      background-color: #bbb;
+      border-radius: 50%;
+      display: inline-block;
+      transition: background-color 0.3s;
+    }
+    .dot.active { background-color: var(--primary); }
+
+    /* Montage */
+    .montage {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .montage img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: transform 0.4s ease, filter 0.4s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .montage img:hover {
+      transform: scale(1.05);
+      filter: brightness(1.15);
+    }
+
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 1rem;
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .counter {
+      text-align: center;
+      background: var(--card-bg);
+      padding: 2rem 3rem;
+      border-radius: 1rem;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+    .counter h3 {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Map */
+    iframe {
+      width: 100%;
+      height: 380px;
+      border: 0;
+      border-radius: 1rem;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: var(--primary);
+      color: white;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* Top Button */
+    .top-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .top-btn:hover {
+      background: var(--accent);
+    }
+
+    /* Céges rész */
+    .ceg-lista {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .ceg-kartya {
+      background: var(--card-bg);
+      color: var(--text);
+      padding: 1rem 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .ceg-kartya:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#fejlec">Kezdőlap</a>
+    <a href="#slideshow">Slideshow</a>
+    <a href="#montage">Montázs</a>
+    <a href="#cegek">Cégek</a>
+    <a href="#statisztika">Statisztika</a>
+    <a href="#terkep">Térkép</a>
+    <button id="themeToggle">Téma váltás</button>
+  </nav>
+
+  <header id="fejlec" data-aos="fade-down">
+    <h1>Üdvözlünk az 1. Mátészalkai SzakmaFeszt-en</h1>
+    <p>Fedezd fel a szakmák világát – Ismerd meg a helyi vállalkozásokat és mesterségeket!</p>
+  </header>
+
+  <section id="slideshow" data-aos="fade-up">
+    <div class="slide active" style="background-image: url('stand1.jpg');"></div>
+    <div class="slide" style="background-image: url('stand2.jpg');"></div>
+    <div class="slide" style="background-image: url('stand3.jpg');"></div>
+    <div class="slide" style="background-image: url('stand4.jpg');"></div>
+    <div class="slide" style="background-image: url('stand5.jpg');"></div>
+
+    <a class="prev">&#10094;</a>
+    <a class="next">&#10095;</a>
+    <div class="dots">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </section>
+
+  <section id="montage" data-aos="fade-up">
+    <h2>Montázs – hangulatképek</h2>
+    <div class="montage">
+      <img src="plakat1.jpg" alt="">
+      <img src="plakat2.jpg" alt="">
+      <img src="stand3.jpg" alt="">
+      <img src="stand5.jpg" alt="">
+      <img src="stand9.jpg" alt="">
+      <img src="stand11.jpg" alt="">
+    </div>
+  </section>
+
+  <section id="cegek" data-aos="fade-up">
+    <h2>Résztvevő Cégek</h2>
+    <div class="ceg-lista" id="cegLista"></div>
+    <div id="cegGaleria" class="montage" style="display:none; margin-top:2rem;"></div>
+  </section>
+
+  <section id="statisztika" data-aos="zoom-in">
+    <h2>Fesztivál Statisztika</h2>
+    <div class="stats">
+      <div class="counter"><h3 data-target="18">0</h3><p>Cég</p></div>
+      <div class="counter"><h3 data-target="27">0</h3><p>Szakma bemutatva</p></div>
+      <div class="counter"><h3 data-target="1200">0</h3><p>Látogató</p></div>
+    </div>
+  </section>
+
+  <section id="terkep" data-aos="fade-up">
+    <h2>Helyszín</h2>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2746.036796885078!2d22.324792615540593!3d47.95303197921169!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4738865f7d71d7f5%3A0xa3db69cf38e61b8f!2sM%C3%A1t%C3%A9szalka!5e0!3m2!1shu!2shu!4v1687020000000!5m2!1shu!2shu"></iframe>
+  </section>
+
+  <footer><p>&copy; 2025 Mátészalkai SzakmaFeszt – Minden jog fenntartva.</p></footer>
+
+  <div class="lightbox" id="lightbox"><img src="" alt=""></div>
+  <button class="top-btn" id="topBtn">↑</button>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init();
+
+    let slideIndex = 0;
+    const slides = document.querySelectorAll(".slide");
+    const dots = document.querySelectorAll(".dot");
+    const next = document.querySelector(".next");
+    const prev = document.querySelector(".prev");
+
+    function showSlide(n) {
+      slides.forEach((s, i) => {
+        s.classList.remove("active");
+        dots[i].classList.remove("active");
+      });
+      slides[n].classList.add("active");
+      dots[n].classList.add("active");
+      slideIndex = n;
+    }
+
+    next.onclick = () => showSlide((slideIndex + 1) % slides.length);
+    prev.onclick = () => showSlide((slideIndex - 1 + slides.length) % slides.length);
+    setInterval(() => showSlide((slideIndex + 1) % slides.length), 4000);
+
+    const lightbox = document.getElementById("lightbox");
+    const lightImg = lightbox.querySelector("img");
+    document.querySelectorAll(".montage img").forEach(img => {
+      img.addEventListener("click", () => {
+        lightImg.src = img.src;
+        lightbox.style.display = "flex";
+      });
     });
-    cegGaleria.appendChild(kep);
-  }
-}
+    lightbox.addEventListener("click", () => lightbox.style.display = "none");
+
+    const counters = document.querySelectorAll(".counter h3");
+    function animateCounters() {
+      counters.forEach(c => {
+        const target = +c.dataset.target;
+        const count = +c.innerText;
+        const inc = target / 50;
+        if (count < target) {
+          c.innerText = Math.ceil(count + inc);
+          setTimeout(animateCounters, 50);
+        }
+      });
+    }
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 600) animateCounters();
+    });
+
+    const topBtn = document.getElementById("topBtn");
+    window.addEventListener("scroll", () => {
+      topBtn.style.display = window.scrollY > 400 ? "block" : "none";
+    });
+    topBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const themeBtn = document.getElementById("themeToggle");
+    const root = document.documentElement;
+    if (localStorage.getItem("theme") === "dark") {
+      root.setAttribute("data-theme", "dark");
+      themeBtn.textContent = "Világos mód";
+    }
+    themeBtn.onclick = () => {
+      if (root.getAttribute("data-theme") === "dark") {
+        root.removeAttribute("data-theme");
+        themeBtn.textContent = "Sötét mód";
+        localStorage.setItem("theme", "light");
+      } else {
+        root.setAttribute("data-theme", "dark");
+        themeBtn.textContent = "Világos mód";
+        localStorage.setItem("theme", "dark");
+      }
+    };
+
+    // ---- Cégek galéria ----
+    const cegek = [
+      "GÉPÉSZETI", "ESZE TAMÁS", "DÉRI", "BUDAI", "BAROS",
+      "MUNKA.HU", "HELYSZÍN", "TŰZOLTÓSÁG", "ZEISS", "HOYA",
+      "MOM", "SZATMÁR OPTIKA", "RENDŐRSÉG", "PARMEN", "NOBILIS",
+      "PÖTTYÖS", "MSG", "MCDONALDS"
+    ];
+
+    const cegLista = document.getElementById("cegLista");
+    const cegGaleria = document.getElementById("cegGaleria");
+    const lightbox2 = document.getElementById("lightbox");
+    const lightImg2 = lightbox2.querySelector("img");
+
+    cegek.forEach(nev => {
+      const div = document.createElement("div");
+      div.className = "ceg-kartya";
+      div.textContent = nev;
+      div.addEventListener("click", () => megjelenitCeg(nev));
+      cegLista.appendChild(div);
+    });
+
+    function megjelenitCeg(nev) {
+      cegGaleria.innerHTML = "";
+      cegGaleria.style.display = "grid";
+      cegGaleria.scrollIntoView({ behavior: "smooth" });
+
+      for (let i = 1; i <= 10; i++) {
+        const kep = document.createElement("img");
+        kep.src = `kepek/${nev}/${i}.jpg`;
+        kep.alt = `${nev} kép ${i}`;
+        kep.onerror = () => kep.remove();
+        kep.addEventListener("click", () => {
+          lightImg2.src = kep.src;
+          lightbox2.style.display = "flex";
+        });
+        cegGaleria.appendChild(kep);
+      }
+    }
+  </script>
+</body>
+</html>
