@@ -273,29 +273,6 @@
     .top-btn:hover {
       background: var(--accent);
     }
-
-    /* Céges rész */
-    .ceg-lista {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-    }
-    .ceg-kartya {
-      background: var(--card-bg);
-      color: var(--text);
-      padding: 1rem 1.5rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-    .ceg-kartya:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-3px);
-    }
   </style>
 </head>
 <body>
@@ -304,7 +281,6 @@
     <a href="#fejlec">Kezdőlap</a>
     <a href="#slideshow">Slideshow</a>
     <a href="#montage">Montázs</a>
-    <a href="#cegek">Cégek</a>
     <a href="#statisztika">Statisztika</a>
     <a href="#terkep">Térkép</a>
     <button id="themeToggle">Téma váltás</button>
@@ -345,16 +321,10 @@
     </div>
   </section>
 
-  <section id="cegek" data-aos="fade-up">
-    <h2>Résztvevő Cégek</h2>
-    <div class="ceg-lista" id="cegLista"></div>
-    <div id="cegGaleria" class="montage" style="display:none; margin-top:2rem;"></div>
-  </section>
-
   <section id="statisztika" data-aos="zoom-in">
     <h2>Fesztivál Statisztika</h2>
     <div class="stats">
-      <div class="counter"><h3 data-target="18">0</h3><p>Cég</p></div>
+      <div class="counter"><h3 data-target="13">0</h3><p>Stand</p></div>
       <div class="counter"><h3 data-target="27">0</h3><p>Szakma bemutatva</p></div>
       <div class="counter"><h3 data-target="1200">0</h3><p>Látogató</p></div>
     </div>
@@ -443,45 +413,6 @@
         localStorage.setItem("theme", "dark");
       }
     };
-
-    // ---- Cégek galéria ----
-    const cegek = [
-      "GÉPÉSZETI", "ESZE TAMÁS", "DÉRI", "BUDAI", "BAROS",
-      "MUNKA.HU", "HELYSZÍN", "TŰZOLTÓSÁG", "ZEISS", "HOYA",
-      "MOM", "SZATMÁR OPTIKA", "RENDŐRSÉG", "PARMEN", "NOBILIS",
-      "PÖTTYÖS", "MSG", "MCDONALDS"
-    ];
-
-    const cegLista = document.getElementById("cegLista");
-    const cegGaleria = document.getElementById("cegGaleria");
-    const lightbox2 = document.getElementById("lightbox");
-    const lightImg2 = lightbox2.querySelector("img");
-
-    cegek.forEach(nev => {
-      const div = document.createElement("div");
-      div.className = "ceg-kartya";
-      div.textContent = nev;
-      div.addEventListener("click", () => megjelenitCeg(nev));
-      cegLista.appendChild(div);
-    });
-
-    function megjelenitCeg(nev) {
-      cegGaleria.innerHTML = "";
-      cegGaleria.style.display = "grid";
-      cegGaleria.scrollIntoView({ behavior: "smooth" });
-
-      for (let i = 1; i <= 10; i++) {
-        const kep = document.createElement("img");
-        kep.src = `kepek/${nev}/${i}.jpg`;
-        kep.alt = `${nev} kép ${i}`;
-        kep.onerror = () => kep.remove();
-        kep.addEventListener("click", () => {
-          lightImg2.src = kep.src;
-          lightbox2.style.display = "flex";
-        });
-        cegGaleria.appendChild(kep);
-      }
-    }
   </script>
 </body>
 </html>
